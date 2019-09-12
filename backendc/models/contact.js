@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const schema = new Schema({
+    contactImage:{ type: String },
     name:{type:String,require:true},
     primarynumber:{type:String,require:true},
     secondarynumber:{type:String},
@@ -11,5 +12,4 @@ const schema = new Schema({
     creation_dt:{type:Date,require:true},
 });
 
-// module.exports = mongoose.model('Contact',schema);
 module.exports = schema;

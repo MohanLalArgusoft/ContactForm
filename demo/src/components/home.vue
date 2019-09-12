@@ -3,9 +3,6 @@
     <v-navigation-drawer v-model="drawer" app class="sidebar">
       <v-list >
         <v-list-item>
-          <!-- <v-list-item-action>
-            <v-icon>mdi-contacts</v-icon>
-          </v-list-item-action> -->
           <v-list-item-content>
             <v-list-item-title><h1 style="color:Black:"> Welcome {{username}} </h1></v-list-item-title>
           </v-list-item-content>
@@ -18,14 +15,6 @@
             <v-list-item-title>Contacts</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-        <!-- <v-list-item @click="toaddcontact">
-          <v-list-item-action>
-            <v-icon>mdi-account-plus</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Add Contact</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item> -->
         <v-list-item @click="categories">
           <v-list-item-action>
             <v-icon>mdi-filter-variant</v-icon>

@@ -1,57 +1,51 @@
 <template>
   <v-app id="categories">
     <v-row justify="center">
-      <!-- <v-col cols="12">
-        <v-card max-width="500" class="mx-auto">
-          <v-toolbar color="indigo" dark>
-            <v-toolbar-title>ADD CATEGORY</v-toolbar-title>
+      <v-dialog v-model="dialog" persistent max-width="600px">
+        <template v-slot:activator="{ on }">
+          <v-btn color="indigo" dark v-on="on">ADD CATEGORY</v-btn>
+        </template>
+        <v-card>
+          <v-card-title>
+            <span class="headline">{{formTitle}}</span>
+          </v-card-title>
+          <v-card-text>
+            <v-container>
+              <v-row>
+                <v-col cols="12">
+                    <v-text-field
+                      v-model="newcategory"
+                      label="Category Name*"
+                      @input="$v.newcategory.$touch()"
+                      @blur="$v.newcategory.$touch()"
+                      required
+                    ></v-text-field>
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-card-text>
+          <v-card-actions>
             <div class="flex-grow-1"></div>
-            <v-btn text dark @click="close()">Close</v-btn>
-            <v-btn text dark v-on:click="addcategory">Create</v-btn>
-          </v-toolbar>
-          <v-list-item>
-            <v-list-item-content>
-              <v-list-item-title>
-                <v-form ref="form" v-model="valid" lazy-validation>
-                  <v-text-field
-                    max-width="500"
-                    v-model="newcategory"
-                    label="Name of Category"
-                    :error-messages="nameErrors"
-                    @input="$v.newcategory.$touch()"
-                    @blur="$v.newcategory.$touch()"
-                    required
-                  ></v-text-field>
-                </v-form>
-              </v-list-item-title>
-            </v-list-item-content>
-          </v-list-item> -->
-          <!-- <v-list-item v-for="(item,i) in itemarray" :key="i">
-            <v-list-item-content>
-              <v-list-item-title>{{i+1}}. {{item}}</v-list-item-title>
-            </v-list-item-content>
-            <v-list-item-action>
-              <v-tooltip right>
-                <template v-slot:activator="{ on }">
-                  <v-icon
-                    color="red"
-                    dark
-                    class="mb-2"
-                    v-on="on"
-                    medium
-                    @click="deletecategory(i)"
-                  >mdi-delete</v-icon>
-                </template>
-                <span>Delete Category</span>
-              </v-tooltip>
-            </v-list-item-action>
-          </v-list-item> -->
-        <!-- </v-card>
-      </v-col> -->
-      <v-col cols="12">
+            <v-btn color="blue darken-1" text @click="close()">Close</v-btn>
+            <v-btn color="blue darken-1" text v-on:click="addcategory">Save</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+    </v-row>
+    <v-row justify="center">
+      <v-col>
         <h2 style="text-align: center; color: mediumblue;">LIST OF CATEGORIES</h2>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col id="searchbar">
+        <v-text-field v-model="search" label="Search Contact"></v-text-field>
+      </v-col>
+    </v-row>
+    <v-row justify="center">
+      <v-col cols="12">
         <v-expansion-panels popout>
-          <v-expansion-panel v-for="(item,i) in itemarray" :key="i">
+          <v-expansion-panel v-for="(item,i) in filterCategories" :key="i">
             <v-row>
               <v-col cols="11">
                 <v-expansion-panel-header>
@@ -66,6 +60,19 @@
                 </v-expansion-panel-header>
               </v-col>
               <v-col cols="1" id="editdelete">
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on }">
+                    <v-icon
+                      color="orange"
+                      dark
+                      class="mb-2"
+                      v-on="on"
+                      medium
+                      @click="editcategory(i,item)"
+                    >mdi-account-edit</v-icon>
+                  </template>
+                  <span>Edit Category</span>
+                </v-tooltip>
                 <v-tooltip right>
                   <template v-slot:activator="{ on }">
                     <v-icon
@@ -85,8 +92,6 @@
         </v-expansion-panels>
       </v-col>
     </v-row>
-    <!-- <v-row justify="center">
-    </v-row> -->
   </v-app>
 </template>
 
@@ -102,6 +107,7 @@ import {
 export default {
   data() {
     return {
+      dialog: false,
       itemarray: [],
       newcategory: "",
       valid: true,
@@ -110,7 +116,9 @@ export default {
       search: "",
       username: "Welcome",
       radios: "All",
-      nameRules: [v => !!v || "Name is required"]
+      currentstring: "",
+      checkstring: "",
+      editedIndex: -1
     };
   },
   validations: {
@@ -121,9 +129,19 @@ export default {
       const errors = [];
       if (!this.$v.newcategory.$dirty) return errors;
       !this.$v.newcategory.minLength &&
-        errors.push("Name must be atleast 2 characters long");
-      !this.$v.newcategory.required && errors.push("Name is required.");
+        errors.push("Category must be atleast 2 characters long");
+      !this.$v.newcategory.required && errors.push("Category is required.");
       return errors;
+    },
+    filterCategories: function() {
+      return this.itemarray.filter(item => {
+        this.currentstring = item.toLowerCase();
+        this.checkstring = this.search.toLowerCase();
+        return this.currentstring.match(this.checkstring);
+      });
+    },
+    formTitle() {
+      return this.editedIndex === -1 ? "Add Category" : "Edit Category";
     }
   },
   created() {
@@ -143,37 +161,77 @@ export default {
   },
   methods: {
     close() {
-      this.$router.push("/contacts");
+      this.dialog = false;
+      this.editedIndex = -1;
+      this.newcategory = "";
     },
     addcategory() {
       this.$v.$touch();
       if (this.$v.$invalid) {
         console.log("validations not work");
       } else {
-        let flag = true;
-        this.itemarray.forEach(item => {
-          if (item.toLowerCase() === this.newcategory.toLowerCase()) {
-            flag = false;
-          }
-        });
-        if (flag) {
-          this.itemarray.push(this.newcategory);
-          var body = {
-            username: this.username,
-            categorylist: this.itemarray
-          };
-          this.$http
-            .post(`${server.path}users/putcategorylist`, body, {
-              observe: "body"
-            })
-            .then(data => {
-              console.log(data);
-              this.newcategory = "";
-              this.$router.push("/contacts");
-            });
-          this.dialog2 = false;
+        if (this.editedIndex > -1) {
+          // let flag = true;
+          // this.itemarray.forEach(item => {
+          //   if (item.toLowerCase() === this.newcategory.toLowerCase()) {
+          //     flag = false;
+          //   }
+          // });
+          // if (flag) {
+            this.itemarray.splice(this.editedIndex, 1);
+            var body = {
+              username: this.username,
+              categorylist: this.itemarray
+            };
+            this.$http
+              .post(`${server.path}users/putcategorylist`, body, {
+                observe: "body"
+              })
+              .then(data => {
+                console.log(data);
+                this.itemarray.push(this.newcategory);
+                var body = {
+                  username: this.username,
+                  categorylist: this.itemarray
+                };
+                this.$http
+                  .post(`${server.path}users/putcategorylist`, body, {
+                    observe: "body"
+                  })
+                  .then(data => {
+                    this.newcategory = "";
+                    this.editedIndex = -1;
+                  });
+                this.dialog = false;
+              });
+          // } else {
+          //   this.$toaster.warning("Category already exists !");
+          // }
         } else {
-          this.$toaster.warning("Category already exists !");
+          let flag = true;
+          this.itemarray.forEach(item => {
+            if (item.toLowerCase() === this.newcategory.toLowerCase()) {
+              flag = false;
+            }
+          });
+          if (flag) {
+            this.itemarray.push(this.newcategory);
+            var body = {
+              username: this.username,
+              categorylist: this.itemarray
+            };
+            this.$http
+              .post(`${server.path}users/putcategorylist`, body, {
+                observe: "body"
+              })
+              .then(data => {
+                console.log(data);
+                this.newcategory = "";
+              });
+            this.dialog = false;
+          } else {
+            this.$toaster.warning("Category already exists !");
+          }
         }
       }
     },
@@ -192,7 +250,12 @@ export default {
             console.log(data);
           });
       }
-    }
+    },
+    editcategory(i, item) {
+      this.newcategory = item;
+      this.editedIndex = i;
+      this.dialog = true;
+    },
   }
 };
 </script>
@@ -208,7 +271,7 @@ export default {
   box-sizing: border-box;
   /* background: #eeeeee; */
 }
-#h2center{
+#h2center {
   margin: auto;
   color: mediumblue;
 }
@@ -223,7 +286,7 @@ export default {
   font-weight: 500;
   font-size: 30px;
 }
-#editdelete{
+#editdelete {
   margin: auto;
 }
 </style>

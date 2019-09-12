@@ -20,6 +20,7 @@ mongoose.connect(process.env.MONGODB,()=>{
     console.log("DataBase is connected !");
 });
 
+app.use('/uploads',express.static('uploads'));
 app.use(bodyParser.json());
 
 app.use('/users', routes);

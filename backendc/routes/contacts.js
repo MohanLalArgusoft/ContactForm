@@ -1,14 +1,40 @@
-var express = require('express');
-var router = express.Router();
-var schema = require('../models/contact');
-var mongoose = require('mongoose');
+const express = require('express');
+const router = express.Router();
+const schema = require('../models/contact');
+const mongoose = require('mongoose');
+const multer = require('multer');
 
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, './uploads');
+  },
+  filename: function (req, file, cb) {
+    cb(null, new Date().toISOString() + file.originalname);
+  }
+});
+
+const filefilter = (req, file, cb) => {
+  if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png' || file.mimetype === 'image/jpg') {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
+}
+
+const upload = multer({
+  storage: storage,
+  limits:{
+    fileSize: 1024 * 1024* 5
+  },
+  fileFilter:filefilter
+});
 
 /**
  * To Store Contacts in user's Collection
  */
-router.post('/store', function (req, res, next) {
+router.post('/store', upload.single('contactImage'), function (req, res, next) {
   console.log('called');
+  console.log(req.file);
   addToDB(req, res);
 });
 
@@ -20,7 +46,8 @@ async function addToDB(req, res) {
     email: req.body.email,
     address: req.body.address,
     category: req.body.category,
-    creation_dt: Date.now()
+    creation_dt: Date.now(),
+    contactImage: req.file.path
   });
   try {
     doc = await contact.save((error, registeredContact) => {

@@ -13,37 +13,6 @@
         </div>
       </v-radio-group>
     </v-row>
-    <v-row justify="center">
-      <v-dialog v-model="dialog" persistent max-width="600px">
-        <template v-slot:activator="{ on }">
-          <v-btn color="green" dark v-on="on">ADD CATEGORY</v-btn>
-        </template>
-        <v-card>
-          <v-card-title>
-            <span class="headline">Add Category</span>
-          </v-card-title>
-          <v-card-text>
-            <v-container>
-              <v-row>
-                <v-col cols="12">
-                  <v-form ref="form" v-model="valid" lazy-validation>
-                    <v-text-field v-model="newcategory" label="Category Name*" :rules="nameRules"></v-text-field>
-                  </v-form>
-                </v-col>
-              </v-row>
-            </v-container>
-          </v-card-text>
-          <v-card-actions>
-            <div class="flex-grow-1"></div>
-            <v-btn color="blue darken-1" text @click="close()">Close</v-btn>
-            <v-btn color="blue darken-1" text v-on:click="addcategory">Save</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-    </v-row>
-    <!-- <v-row justify="center">
-      <v-btn color="indigo" dark @click="gotocategory">Add Category</v-btn>
-    </v-row> -->
     <v-row>
       <v-col id="searchbar">
         <v-text-field v-model="search" label="Search Contact"></v-text-field>
@@ -199,7 +168,6 @@ export default {
           contact.secondarynumber.match(this.checkstring) ||
           contact.email.match(this.checkstring)
         );
-        //return contact.name.match(this.search);
       });
     }
   },
@@ -228,7 +196,6 @@ export default {
             .then(data => {
               console.log(data);
               this.newcategory = "";
-              // this.$router.push("/contacts");
             });
           this.dialog = false;
         } else {
@@ -277,7 +244,6 @@ export default {
       localStorage.setItem("add", this.contact.address);
       localStorage.setItem("category", this.contact.category);
       this.$router.push("/addcontact");
-      // this.dialog = true;
     },
     showusername() {
       console.log(this.username);
