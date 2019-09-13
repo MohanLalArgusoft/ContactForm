@@ -87,6 +87,7 @@ export default {
       localStorage.removeItem("email");
       localStorage.removeItem("add");
       localStorage.removeItem("category");
+      localStorage.removeItem("contactImage");
       this.$router.push("/");
     },
     load() {

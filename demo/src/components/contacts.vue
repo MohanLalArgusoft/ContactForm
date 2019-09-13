@@ -26,7 +26,12 @@
               <v-expansion-panel-header>
                 <v-row align="center" justify="center">
                   <v-col cols="2">
-                    <span id="image-container">{{contact.name[0]}}</span>
+                    <!-- <span id="image-container">{{contact.name[0]}}</span> -->
+                    <v-img 
+                      :src="getImgUrl(contact.contactImage)"
+                      alt="Image"
+                      width="50px"
+                    ></v-img>
                   </v-col>
                   <v-col cols="10">
                     <h2>{{contact.name}} - {{contact.primarynumber}}</h2>
@@ -78,7 +83,7 @@
                     class="mb-2"
                     v-on="on"
                     medium
-                    @click="deletecontact(contact._id)"
+                    @click="deletecontact(contact)"
                   >mdi-delete</v-icon>
                 </template>
                 <span>Delete Contact</span>
@@ -98,7 +103,7 @@ import server from "../constant";
 export default {
   data() {
     return {
-       valid: true,
+      valid: true,
       itemarray: [],
       newcategory: "",
       valid: true,
@@ -172,6 +177,11 @@ export default {
     }
   },
   methods: {
+    getImgUrl(url){
+      if(url){
+        return "http://localhost:3000/"+url;
+      }
+    },
     close() {
       this.dialog = false;
     },
@@ -209,12 +219,13 @@ export default {
     gotocategory() {
       this.$router.push("/categories");
     },
-    deletecontact: function(id) {
+    deletecontact: function(contact) {
       if (confirm("Do you really want to delete?")) {
-        console.log(id);
+        console.log(contact._id);
         var body = {
-          id: id,
-          username: this.username
+          id: contact._id,
+          username: this.username,
+          contactImage:contact.contactImage
         };
         this.$http
           .post(`${server.path}contacts/delete/`, body, {
@@ -243,6 +254,9 @@ export default {
       localStorage.setItem("email", this.contact.email);
       localStorage.setItem("add", this.contact.address);
       localStorage.setItem("category", this.contact.category);
+      if(this.contact.contactImage){
+        localStorage.setItem("contactImage", "http://localhost:3000/"+this.contact.contactImage);
+      }
       this.$router.push("/addcontact");
     },
     showusername() {
