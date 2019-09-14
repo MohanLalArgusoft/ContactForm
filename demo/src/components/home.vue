@@ -1,10 +1,12 @@
 <template>
   <v-app id="home">
     <v-navigation-drawer v-model="drawer" app class="sidebar">
-      <v-list >
+      <v-list>
         <v-list-item>
           <v-list-item-content>
-            <v-list-item-title><h1 style="color:Black:"> Welcome {{username}} </h1></v-list-item-title>
+            <v-list-item-title>
+              <h1 style="color:Black:">Welcome {{username}}</h1>
+            </v-list-item-title>
           </v-list-item-content>
         </v-list-item>
         <v-list-item @click="load">
@@ -49,7 +51,7 @@
     </v-app-bar>
 
     <v-content>
-      <v-container >
+      <v-container>
         <v-row align="center" justify="center">
           <v-col>
             <router-view></router-view>
@@ -67,48 +69,57 @@
 import AddContact from "./AddContact";
 import Contacts from "./contacts";
 import Categories from "./Categories";
+import server from "../constant";
 
 export default {
   props: {
     source: String
   },
-  data: () => ({
-    drawer: null,
-    username: ""
-  }),
+  data() {
+    return {
+      drawer: null,
+      username: "",
+      startToCheck: null
+    };
+  },
   methods: {
     logout() {
-      localStorage.removeItem("token");
-      localStorage.removeItem("username");
-      localStorage.removeItem("id");
-      localStorage.removeItem("name");
-      localStorage.removeItem("num1");
-      localStorage.removeItem("num2");
-      localStorage.removeItem("email");
-      localStorage.removeItem("add");
-      localStorage.removeItem("category");
-      localStorage.removeItem("contactImage");
+      localStorage.clear();
       this.$router.push("/");
     },
     load() {
       this.$router.push("/contacts");
     },
-    toaddcontact(){
-
+    toaddcontact() {
       this.$router.push("/addcontact");
     },
-    categories(){
+    categories() {
       this.$router.push("/categories");
+    },
+    startChecking() {
+      var body = {
+        username: this.username
+      };
+      this.startToCheck = setInterval(() => {
+        this.$http
+          .post(`http://localhost:3000/contacts/deleteDuplicateImage`, body)
+          .then(function() {
+            // this.$toaster.success("Duplicate Images are Deleted");
+          });
+      }, 1000 * 60 * 60);
     }
   },
   components: {
     contacts: Contacts,
-    addcontact :AddContact,
-    categories : Categories
+    addcontact: AddContact,
+    categories: Categories
   },
   created() {
     this.username = localStorage.getItem("username");
-    
+    this.startChecking();
+  },
+  beforeDestroy() {
+    clearInterval(this.startToCheck);
   }
 };
 </script>

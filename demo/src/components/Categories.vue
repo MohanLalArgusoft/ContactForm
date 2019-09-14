@@ -171,13 +171,6 @@ export default {
         console.log("validations not work");
       } else {
         if (this.editedIndex > -1) {
-          // let flag = true;
-          // this.itemarray.forEach(item => {
-          //   if (item.toLowerCase() === this.newcategory.toLowerCase()) {
-          //     flag = false;
-          //   }
-          // });
-          // if (flag) {
             this.itemarray.splice(this.editedIndex, 1);
             var body = {
               username: this.username,
@@ -204,9 +197,6 @@ export default {
                   });
                 this.dialog = false;
               });
-          // } else {
-          //   this.$toaster.warning("Category already exists !");
-          // }
         } else {
           let flag = true;
           this.itemarray.forEach(item => {

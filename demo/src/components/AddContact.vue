@@ -136,6 +136,7 @@ export default {
       uploadPercentage: 0,
       avatar: null,
       imagefile: null,
+      currentImagePath:"",
       showtextfield: false,
       additemarray: ["Add Category"],
       itemarray: [],
@@ -181,6 +182,8 @@ export default {
     this.contact.address = localStorage.getItem("add");
     this.contact.category = localStorage.getItem("category");
     this.avatar = localStorage.getItem("contactImage");
+    this.currentImagePath = localStorage.getItem("currentImagePath");
+    console.log(this.currentImagePath);
     if (localStorage.getItem("name") || localStorage.getItem("num1")) {
       this.editedIndex = 1;
     }
@@ -236,34 +239,31 @@ export default {
     }
   },
   methods: {
-    upload() {},
     GetImage(e) {
-      // this.file = this.$refs.file.files[0];
-      // let formData = new FormData();
-      // formData.append("contactImage", this.file);
-      // this.$http
-      //   .post(`${server.path}contacts/contactImage`, formData, {
-      //     // observe: "body",
-      //     headers: {
-      //       "Content-Type": "multipart/form-data"
-      //     },
-
-      //     onUploadProgress: function(event) {
-      //       // console.log(e);
-      //       console.log(event.total);
-      //       this.uploadPercentage = parseInt(
-      //         Math.round((event.loaded * 100) / event.total)
-      //       );
-      //       console.log("===================");
-      //     }.bind(this)
-      //   })
-      //   .then(function() {
-      //     console.log("SUCCESS!!");
-      //     // this.uploadPercentage=100;
-      //   })
-      //   .catch(function() {
-      //     console.log("FAILURE!!");
-      //   });
+      this.file = this.$refs.file.files[0];
+      let formData = new FormData();
+      formData.append("contactImage", this.file);
+      this.$http
+        .post(`${server.path}contacts/contactImage`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            "path":this.username
+          },
+          onUploadProgress: function(event) {
+            this.uploadPercentage = parseInt(
+              Math.round((event.loaded * 100) / event.total)
+            );
+          }.bind(this)
+        })
+        .then(function(data) {
+          this.currentImagePath=data.body;
+          console.log(this.currentImagePath);
+          console.log("SUCCESS!!");
+          this.uploadPercentage=100;
+        })
+        .catch(function() {
+          console.log("FAILURE!!");
+        });
 
       let image = e.target.files[0];
       this.imagefile = e.target.files[0];
@@ -328,21 +328,10 @@ export default {
         console.log("validations not work");
       } else {
         if (this.editedIndex > -1) {
-          // var body = {
-          //   id: this.idid,
-          //   image: this.avatar,
-          //   name: this.contact.name,
-          //   primarynumber: this.contact.primarynumber,
-          //   secondarynumber: this.contact.secondarynumber,
-          //   email: this.contact.email,
-          //   address: this.contact.address,
-          //   category: this.contact.category,
-          //   username: this.username
-          // };
-
           const formData = new FormData();
           formData.append("id", this.idid);
-          formData.append("contactImage", this.imagefile);
+          // formData.append("contactImage", this.imagefile);
+          formData.append("currentImagePath", this.currentImagePath);
           formData.append("name", this.contact.name);
           formData.append("primarynumber", this.contact.primarynumber);
           formData.append("secondarynumber", this.contact.secondarynumber);
@@ -357,15 +346,7 @@ export default {
             })
             .then(function(data) {
               console.log(data);
-              // this.$http
-              //   .post(`${server.path}contacts/readcontacts`, body, {
-              //     observe: "body"
-              //   })
-              //   .then(data => {
-              //     console.log(data);
-              //     this.contacts = data.body;
               this.$toaster.info("Your Contact is Successfully Edited");
-              // });
               this.contact = this.defaultItem;
               localStorage.removeItem("id");
               localStorage.removeItem("name");
@@ -380,18 +361,9 @@ export default {
               this.$router.push("/contacts");
             });
         } else {
-          // var body = {
-          //   image: this.avatar,
-          //   name: this.contact.name,
-          //   primarynumber: this.contact.primarynumber,
-          //   secondarynumber: this.contact.secondarynumber,
-          //   email: this.contact.email,
-          //   address: this.contact.address,
-          //   category: this.contact.category,
-          //   username: this.username
-          // };
           const formData = new FormData();
-          formData.append("contactImage", this.imagefile);
+          // formData.append("contactImage", this.imagefile);
+          formData.append("currentImagePath", this.currentImagePath);
           formData.append("name", this.contact.name);
           formData.append("primarynumber", this.contact.primarynumber);
           formData.append("secondarynumber", this.contact.secondarynumber);
@@ -399,22 +371,13 @@ export default {
           formData.append("address", this.contact.address);
           formData.append("category", this.contact.category);
           formData.append("username", this.username);
-          // console.log(body);
           this.$http
             .post(`${server.path}contacts/store`, formData, {
               observe: "body"
             })
             .then(function(data) {
               console.log(data);
-              // this.$http
-              //   .post(`${server.path}contacts/readcontacts`, body, {
-              //     observe: "body"
-              //   })
-              //   .then(data => {
-              //     console.log(data);
-              //     this.contacts = data.body;
               this.$toaster.success("Your Contact is Successfully Stored");
-              // });
             });
           this.submitted = true;
           this.$router.push("/contacts");

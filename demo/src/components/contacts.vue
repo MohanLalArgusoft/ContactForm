@@ -27,11 +27,7 @@
                 <v-row align="center" justify="center">
                   <v-col cols="2">
                     <!-- <span id="image-container">{{contact.name[0]}}</span> -->
-                    <v-img 
-                      :src="getImgUrl(contact.contactImage)"
-                      alt="Image"
-                      width="50px"
-                    ></v-img>
+                    <v-img :src="getImgUrl(contact.contactImage)" alt="Image" width="50px"></v-img>
                   </v-col>
                   <v-col cols="10">
                     <h2>{{contact.name}} - {{contact.primarynumber}}</h2>
@@ -177,9 +173,9 @@ export default {
     }
   },
   methods: {
-    getImgUrl(url){
-      if(url){
-        return "http://localhost:3000/"+url;
+    getImgUrl(url) {
+      if (url) {
+        return "http://localhost:3000/" + url;
       }
     },
     close() {
@@ -225,7 +221,7 @@ export default {
         var body = {
           id: contact._id,
           username: this.username,
-          contactImage:contact.contactImage
+          contactImage: contact.contactImage
         };
         this.$http
           .post(`${server.path}contacts/delete/`, body, {
@@ -254,8 +250,12 @@ export default {
       localStorage.setItem("email", this.contact.email);
       localStorage.setItem("add", this.contact.address);
       localStorage.setItem("category", this.contact.category);
-      if(this.contact.contactImage){
-        localStorage.setItem("contactImage", "http://localhost:3000/"+this.contact.contactImage);
+      localStorage.setItem("currentImagePath", this.contact.contactImage);
+      if (this.contact.contactImage) {
+        localStorage.setItem(
+          "contactImage",
+          "http://localhost:3000/" + this.contact.contactImage
+        );
       }
       this.$router.push("/addcontact");
     },
@@ -291,7 +291,7 @@ export default {
           });
       }
     }
-  }
+  },
 };
 </script>
 <style scoped>

@@ -21,6 +21,7 @@ mongoose.connect(process.env.MONGODB,()=>{
 });
 
 app.use('/uploads',express.static('uploads'));
+app.use('/uploadprogress',express.static('uploadprogress'));
 app.use(bodyParser.json());
 
 app.use('/users', routes);
